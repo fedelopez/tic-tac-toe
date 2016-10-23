@@ -7,13 +7,17 @@ import java.util.Scanner
   */
 object TicTacToe {
 
-  case class Grid(rows: List[Row]) {
+  case class Point(row: Int, col: Int)
 
+  case class Grid(rows: List[Row]) {
     def cellAt(row: Int, column: Int): Option[Cell] = {
       if (row < 0 || column < 0 || rows.size <= row || rows(row).columns.size <= column) Option.empty
       else Option(rows(row).columns(column))
     }
-
+    def setCellAt(cell: Cell, p: Point): Grid = {
+      val newCols: List[Cell] = rows(p.row).columns.updated(p.col, cell)
+      new Grid(rows.updated(p.row, Row(newCols)))
+    }
   }
 
   object Grid {
@@ -45,25 +49,22 @@ object TicTacToe {
     }
     val grid: Grid = Grid()
     drawGrid(grid)
-    var line: String = sc.nextLine()
-    while (!validPosition(line, grid)) {
-      line = sc.nextLine()
-      println(line)
+    var xy: Option[Point] = coordinates(sc.nextLine())
+    while (xy.isEmpty || !grid.cellAt(xy.get.row, xy.get.col).contains(Empty)) {
+      xy = coordinates(sc.nextLine())
     }
+    drawGrid(grid.setCellAt(Cross, xy.get))
   }
 
-  def validPosition(position: String, grid: Grid): Boolean = {
-    val validInput = position matches "\\d\\d"
-    if (validInput) {
-      val cell = grid.cellAt(position.head.asDigit, position.tail.toInt)
-      cell.contains(Empty)
-    } else false
+  def coordinates(rawValue: String): Option[Point] = {
+    if (rawValue != null && rawValue.matches("\\d\\d")) Option(Point(rawValue.head.asDigit, rawValue.tail.toInt))
+    else Option.empty
   }
 
   def drawGrid(grid: Grid) {
     println("")
     println(" ----------- ")
-    println(s"| ${grid.rows(0).columns.mkString(" | ")} |")
+    println(s"| ${grid.rows.head.columns.mkString(" | ")} |")
     println(" ----------- ")
     println(s"| ${grid.rows(1).columns.mkString(" | ")} |")
     println(" ----------- ")

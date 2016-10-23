@@ -24,19 +24,29 @@ class TicTacToeSpec extends FunSpec {
       assert(grid.cellAt(0, 3).isEmpty)
       assert(grid.cellAt(3, 0).isEmpty)
     }
+
+    it("should return a new grid when setting a cell") {
+      val res: Grid = grid.setCellAt(Cross, Point(0, 0))
+      assert(res.cellAt(0, 0).contains(Cross))
+      assert(res.cellAt(0, 1).contains(Cross))
+      assert(res.cellAt(0, 2).contains(Nought))
+      assert(grid.cellAt(0, 0).contains(Empty))
+    }
   }
 
-  describe("valid position") {
-    it("should be valid when empty space on cell") {
-      assert(validPosition("00", grid))
-      assert(validPosition("10", grid))
-      assert(validPosition("20", grid))
+  describe("coordinates") {
+    it("should return coordinates from string") {
+      assert(coordinates("00") == Option(Point(0, 0)))
+      assert(coordinates("13") == Option(Point(1, 3)))
     }
 
-    it("should be invalid when cross space on cell") {
-      assert(!validPosition("12", grid))
-      assert(!validPosition("22", grid))
-      assert(!validPosition("32", grid))
+    it("should return empty option if cannot parse coordinates from string") {
+      assert(coordinates("1a") == Option.empty)
+    }
+
+    it("should return empty option if cannot parse empty coordinates") {
+      assert(coordinates("") == Option.empty)
+      assert(coordinates(null) == Option.empty)
     }
   }
 }
