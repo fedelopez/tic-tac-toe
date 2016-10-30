@@ -80,7 +80,7 @@ class TicTacToeSpec extends FunSpec {
     }
   }
 
-  describe("coordinates") {
+  describe("Coordinates") {
     it("should return coordinates from string") {
       assert(coordinates("00") == Option(Point(0, 0)))
       assert(coordinates("13") == Option(Point(1, 3)))

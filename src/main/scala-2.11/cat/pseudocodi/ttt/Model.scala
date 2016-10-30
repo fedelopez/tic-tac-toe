@@ -17,11 +17,11 @@ case class Grid(rows: List[Row]) {
   }
 
   def gameStatus(): GameStatus = {
-    if (rows.exists(row => row.isAllCross())) CrossWins
-    else if (rows.exists(row => row.isAllNought())) NoughtWins
+    if (rowsHaveAll(Cross, 0)) CrossWins
+    else if (rowsHaveAll(Nought, 0)) NoughtWins
     else if (columnsHaveAll(Cross, 0)) CrossWins
     else if (columnsHaveAll(Nought, 0)) NoughtWins
-    else if (rows.exists(row => row.hasEmpty())) Playing
+    else if (rows.exists(row => row.cells.contains(Empty))) Playing
     else Draw
   }
 
@@ -33,6 +33,15 @@ case class Grid(rows: List[Row]) {
       else columnsHaveAll(cell, columnIndex + 1)
     }
   }
+
+  private def rowsHaveAll(cell: Cell, rowIndex: Int): Boolean = {
+    if (rowIndex >= rows.length) false
+    else {
+      val count: Int = rows(rowIndex).cells.foldLeft(0)((i: Int, c: Cell) => if (c == cell) i + 1 else i)
+      if (count == rows.length) true
+      else rowsHaveAll(cell, rowIndex + 1)
+    }
+  }
 }
 
 object Grid {
@@ -42,15 +51,7 @@ object Grid {
   }
 }
 
-case class Row(cells: List[Cell]) {
-  def isAllCross(): Boolean = cells.takeWhile(c => c == Cross).length == cells.length
-
-  def isAllNought(): Boolean = cells.takeWhile(c => c == Nought).length == cells.length
-
-  def hasEmpty(): Boolean = cells.contains(Empty)
-
-  def isFull(): Boolean = cells.takeWhile(c => c != Empty).length == cells.length
-}
+case class Row(cells: List[Cell])
 
 abstract case class Cell(value: String) {
   override def toString: String = value
