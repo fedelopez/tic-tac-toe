@@ -45,7 +45,19 @@ case class Grid(size: Int) {
   }
 }
 
-case class Row(cells: List[Cell])
+object Grid {
+  def draw(grid: Grid) {
+    println("")
+    for (i <- 0 until grid.size) {
+      println(" ----------- ")
+      for (j <- 0 until grid.size) print(s"| ${grid.cellAt(i, j).get} ")
+      print("|")
+      println("")
+    }
+    println(" ----------- ")
+    println("")
+  }
+}
 
 abstract case class Cell(value: String) {
   override def toString: String = value
