@@ -3,17 +3,20 @@ package cat.pseudocodi.ttt
 /**
   * @author fede
   */
-case class Point(row: Int, col: Int)
+case class Point(x: Int, y: Int)
 
-case class Grid(rows: List[Row]) {
+case class Grid(size: Int) {
+
+  private val grid: Array[Array[Cell]] = Array.fill(size, size)(Empty)
+
   def cellAt(row: Int, column: Int): Option[Cell] = {
-    if (row < 0 || column < 0 || rows.size <= row || rows(row).cells.size <= column) Option.empty
-    else Option(rows(row).cells(column))
+    if (row < 0 || column < 0 || size <= row || size <= column) Option.empty
+    else Option(grid(row)(column))
   }
 
   def setCellAt(cell: Cell, p: Point): Grid = {
-    val newCols: List[Cell] = rows(p.row).cells.updated(p.col, cell)
-    new Grid(rows.updated(p.row, Row(newCols)))
+    grid(p.x).update(p.y, cell)
+    this
   }
 
   def gameStatus(): GameStatus = {
@@ -21,33 +24,24 @@ case class Grid(rows: List[Row]) {
     else if (rowsHaveAll(Nought, 0)) NoughtWins
     else if (columnsHaveAll(Cross, 0)) CrossWins
     else if (columnsHaveAll(Nought, 0)) NoughtWins
-    else if (rows.exists(row => row.cells.contains(Empty))) Playing
+    else if (grid.flatten.contains(Empty)) Playing
     else Draw
   }
 
   private def columnsHaveAll(cell: Cell, columnIndex: Int): Boolean = {
-    if (columnIndex >= rows.length) false
+    if (columnIndex >= size) false
     else {
-      val count: Int = rows.foldLeft(0)((i: Int, row: Row) => if (row.cells(columnIndex) == cell) i + 1 else i)
-      if (count == rows.length) true
+      if (grid.forall(cells => cells(columnIndex) == cell)) true
       else columnsHaveAll(cell, columnIndex + 1)
     }
   }
 
   private def rowsHaveAll(cell: Cell, rowIndex: Int): Boolean = {
-    if (rowIndex >= rows.length) false
+    if (rowIndex >= size) false
     else {
-      val count: Int = rows(rowIndex).cells.foldLeft(0)((i: Int, c: Cell) => if (c == cell) i + 1 else i)
-      if (count == rows.length) true
+      if (grid(rowIndex).forall(c => c == cell)) true
       else rowsHaveAll(cell, rowIndex + 1)
     }
-  }
-}
-
-object Grid {
-  def apply() = {
-    val empty: Row = new Row(List(Empty, Empty, Empty))
-    new Grid(List(empty, empty, empty))
   }
 }
 

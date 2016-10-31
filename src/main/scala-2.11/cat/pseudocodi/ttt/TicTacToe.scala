@@ -14,10 +14,10 @@ object TicTacToe extends App {
   val sc: Scanner = new Scanner(System.in)
   sc.next()
   println("Player moves")
-  var grid: Grid = Grid()
+  var grid: Grid = Grid(3)
   drawGrid(grid)
   var xy: Option[Point] = coordinates(sc.nextLine())
-  while (xy.isEmpty || !grid.cellAt(xy.get.row, xy.get.col).contains(Empty)) {
+  while (xy.isEmpty || !grid.cellAt(xy.get.x, xy.get.y).contains(Empty)) {
     xy = coordinates(sc.nextLine())
   }
   grid = grid.setCellAt(Cross, xy.get)
@@ -25,7 +25,7 @@ object TicTacToe extends App {
   println("Computer moves")
   Thread.sleep(1200)
   var p: Point = Point(Random.nextInt(2), Random.nextInt(2))
-  while (!grid.cellAt(p.row, p.col).contains(Empty)) {
+  while (!grid.cellAt(p.x, p.y).contains(Empty)) {
     p = Point(Random.nextInt(2), Random.nextInt(2))
   }
   grid = grid.setCellAt(Nought, p)
@@ -38,9 +38,11 @@ object TicTacToe extends App {
 
   def drawGrid(grid: Grid) {
     println("")
-    for (row <- grid.rows) {
+    for (i <- 0 until grid.size) {
       println(" ----------- ")
-      println(s"| ${row.cells.mkString(" | ")} |")
+      for (j <- 0 until grid.size) print(s"| ${grid.cellAt(i, j).get} ")
+      print("|")
+      println("")
     }
     println(" ----------- ")
     println("")
