@@ -1,6 +1,5 @@
 package cat.pseudocodi.ttt
 
-import cat.pseudocodi.ttt.TicTacToe._
 import org.scalatest._
 
 /**
@@ -11,30 +10,43 @@ class TicTacToeSpec extends FunSpec with BeforeAndAfter {
   var grid: Grid = null
 
   before {
-    grid = Grid(3)
-    grid.setCellAt(Nought, Point(0, 2))
-    grid.setCellAt(Cross, Point(0, 1))
+    grid = new Grid()
   }
 
   describe("Grid") {
     it("should return the cell at a given position") {
-      assert(grid.cellAt(0, 0).contains(Empty))
-      assert(grid.cellAt(0, 1).contains(Cross))
-      assert(grid.cellAt(0, 2).contains(Nought))
+      grid.setCellAt(Nought, Point(0, 2))
+      grid.setCellAt(Cross, Point(0, 1))
+      assert(grid.cellAt(Point(0, 0)).contains(Empty))
+      assert(grid.cellAt(Point(0, 1)).contains(Cross))
+      assert(grid.cellAt(Point(0, 2)).contains(Nought))
     }
 
     it("should return undefined if out of bounds") {
-      assert(grid.cellAt(0, -1).isEmpty)
-      assert(grid.cellAt(-1, 0).isEmpty)
-      assert(grid.cellAt(0, 3).isEmpty)
-      assert(grid.cellAt(3, 0).isEmpty)
+      assert(grid.cellAt(Point(0, -1)).isEmpty)
+      assert(grid.cellAt(Point(-1, 0)).isEmpty)
+      assert(grid.cellAt(Point(0, 3)).isEmpty)
+      assert(grid.cellAt(Point(3, 0)).isEmpty)
     }
 
-    it("should return a new grid when setting a cell") {
-      val res: Grid = grid.setCellAt(Cross, Point(0, 0))
-      assert(res.cellAt(0, 0).contains(Cross))
-      assert(res.cellAt(0, 1).contains(Cross))
-      assert(res.cellAt(0, 2).contains(Nought))
+    it("should set the cell contents on the grid") {
+      val point: Point = Point(2, 2)
+      grid.setCellAt(Cross, point)
+      assert(grid.cellAt(point).contains(Cross))
+    }
+
+    it("should return coordinates from string") {
+      assert(Grid.toPoint("00") == Option(Point(0, 0)))
+      assert(Grid.toPoint("13") == Option(Point(1, 3)))
+    }
+
+    it("should return empty option if cannot parse coordinates from string") {
+      assert(Grid.toPoint("1a") == Option.empty)
+    }
+
+    it("should return empty option if cannot parse empty coordinates") {
+      assert(Grid.toPoint("") == Option.empty)
+      assert(Grid.toPoint(null) == Option.empty)
     }
   }
 
@@ -59,13 +71,13 @@ class TicTacToeSpec extends FunSpec with BeforeAndAfter {
 
     it("should return draw when no player wins") {
       grid.setCellAt(Cross, Point(0, 0))
-      grid.setCellAt(Cross, Point(0, 1))
-      grid.setCellAt(Nought, Point(0, 2))
-      grid.setCellAt(Nought, Point(1, 0))
-      grid.setCellAt(Cross, Point(1, 1))
-      grid.setCellAt(Cross, Point(1, 2))
+      grid.setCellAt(Nought, Point(0, 1))
+      grid.setCellAt(Cross, Point(0, 2))
+      grid.setCellAt(Cross, Point(1, 0))
+      grid.setCellAt(Nought, Point(1, 1))
+      grid.setCellAt(Nought, Point(1, 2))
       grid.setCellAt(Nought, Point(2, 0))
-      grid.setCellAt(Nought, Point(2, 1))
+      grid.setCellAt(Cross, Point(2, 1))
       grid.setCellAt(Cross, Point(2, 2))
       assert(grid.gameStatus() == Draw)
     }
@@ -79,29 +91,22 @@ class TicTacToeSpec extends FunSpec with BeforeAndAfter {
       assert(grid.gameStatus() == CrossWins)
     }
 
-    //todo
     it("should return winner player with 3 crosses diagonally") {
-      //      val row1 = Row(List(Cross, Nought, Nought))
-      //      val row2 = Row(List(Empty, Cross, Empty))
-      //      val row3 = Row(List(Empty, Empty, Cross))
-      //      val grid = new Grid(List(row1, row2, row3))
-      //      assert(grid.gameStatus() == CrossWins)
-    }
-  }
-
-  describe("Coordinates") {
-    it("should return coordinates from string") {
-      assert(coordinates("00") == Option(Point(0, 0)))
-      assert(coordinates("13") == Option(Point(1, 3)))
+      grid.setCellAt(Cross, Point(0, 0))
+      grid.setCellAt(Cross, Point(1, 1))
+      grid.setCellAt(Cross, Point(2, 2))
+      grid.setCellAt(Nought, Point(2, 0))
+      grid.setCellAt(Nought, Point(2, 1))
+      assert(grid.gameStatus() == CrossWins)
     }
 
-    it("should return empty option if cannot parse coordinates from string") {
-      assert(coordinates("1a") == Option.empty)
-    }
-
-    it("should return empty option if cannot parse empty coordinates") {
-      assert(coordinates("") == Option.empty)
-      assert(coordinates(null) == Option.empty)
+    it("should return winner player with 3 crosses diagonally right to left") {
+      grid.setCellAt(Cross, Point(0, 2))
+      grid.setCellAt(Cross, Point(1, 1))
+      grid.setCellAt(Cross, Point(2, 0))
+      grid.setCellAt(Nought, Point(2, 2))
+      grid.setCellAt(Nought, Point(2, 1))
+      assert(grid.gameStatus() == CrossWins)
     }
   }
 }
