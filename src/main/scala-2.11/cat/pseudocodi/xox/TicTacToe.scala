@@ -1,4 +1,4 @@
-package cat.pseudocodi.ttt
+package cat.pseudocodi.xox
 
 import java.util.Scanner
 
