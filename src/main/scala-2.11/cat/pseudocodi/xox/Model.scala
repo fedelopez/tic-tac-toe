@@ -1,5 +1,9 @@
 package cat.pseudocodi.xox
 
+import cat.pseudocodi.xox.MiniMax.{Branch, Leaf, Tree}
+
+import scala.collection.mutable.ListBuffer
+
 /**
   * @author fede
   */
@@ -27,6 +31,35 @@ class Grid {
     else if (diagonalsHaveAll(Nought)) NoughtWins
     else if (grid.flatten.contains(Empty)) Playing
     else Draw
+  }
+
+  def emptyCells(): Seq[Point] = {
+    for {
+      i <- 0 until size
+      j <- 0 until size
+      if cellAt(Point(i, j)).contains(Empty)
+    } yield Point(i, j)
+  }
+
+  def neighbors(cell: Cell): Seq[Grid] = {
+    if (gameStatus() != Playing) {
+      List()
+    } else {
+      emptyCells().map((point: Point) => {
+        val newGrid = copy()
+        newGrid.setCellAt(cell, point)
+        newGrid
+      })
+    }
+  }
+
+  private def copy(): Grid = {
+    val copy = new Grid()
+    for (i <- 0 until size; j <- 0 until size) {
+      val p: Point = Point(i, j)
+      copy.setCellAt(cellAt(p).get, p)
+    }
+    copy
   }
 
   private def rowsHaveAll(cell: Cell, rowIndex: Int): Boolean = {
@@ -69,6 +102,27 @@ object Grid {
   def toPoint(rawValue: String): Option[Point] = {
     if (rawValue != null && rawValue.matches("\\d\\d")) Option(Point(rawValue.head.asDigit, rawValue.tail.toInt))
     else Option.empty
+  }
+
+  def toTree(grid: Grid, cell: Cell): Tree = {
+    def doIt(g: Grid, parent: Branch, cell: Cell): Unit = {
+      for (n <- g.neighbors(cell)) {
+        val tree: Tree = n.gameStatus() match {
+          case Playing => Branch(ListBuffer())
+          case CrossWins => Leaf(1)
+          case NoughtWins => Leaf(-1)
+          case Draw => Leaf(0)
+        }
+        parent.children += tree
+        tree match {
+          case branch: Branch => doIt(n, branch, if (cell == Cross) Nought else Cross)
+          case _ => ()
+        }
+      }
+    }
+    val root: Branch = Branch(ListBuffer())
+    doIt(grid, root, cell)
+    root
   }
 }
 
